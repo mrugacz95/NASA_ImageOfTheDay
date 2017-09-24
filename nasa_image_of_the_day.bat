@@ -1,0 +1,1 @@
+python <path to repo>\nasa_image_of_the_day.py
