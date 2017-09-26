@@ -1,7 +1,7 @@
 # NASA Image of the day downloader
 Python script to download latest daily images from NASA
 ##### Installation 
-1. Install OpenCV for python:
+1. Install OpenCV for python (optional):
 ```
 conda install -c menpo opencv3 
 ```
