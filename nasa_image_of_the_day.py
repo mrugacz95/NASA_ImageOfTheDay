@@ -55,42 +55,59 @@ def main():
                 # noinspection PyPackageRequirements
                 import cv2
             image = cv2.imread(filename)
-            cv2.startWindowThread()
+
             height, width, channels = image.shape
+            target_height = height
+            target_width = int(np.round(height * ASPECT_RATIO))
             if width < height * ASPECT_RATIO:
-                target_height = height
-                target_width = int(np.round(height * ASPECT_RATIO))
-            else:
-                continue
-            target_image = np.zeros((target_height, target_width, 3), dtype=np.uint8)
-            target_image.fill(150)
-            big_image_ratio = target_width / width
-            background_width = int(width * big_image_ratio)
-            background_height = int(height * big_image_ratio)
-            background = cv2.resize(image, (background_width, background_height))
-            background = background[int(background_height / 2 - target_height / 2):
-            int(background_height / 2 + target_height / 2),
-                         int(background_width / 2 - target_width / 2):
-                         int(background_width / 2 + target_width / 2)]
-            background = cv2.GaussianBlur(background, (61, 61), 0)
-            target_image = background
-            target_image[0:height,
-            int(np.floor(target_width / 2 - width / 2)):
-            int(np.floor((target_width / 2 + width / 2)))] = image
+                target_image = np.zeros((target_height, target_width, 3), dtype=np.uint8)
+                target_image.fill(150)
+                big_image_ratio = target_width / width
+                background_width = int(width * big_image_ratio)
+                background_height = int(height * big_image_ratio)
+                background = cv2.resize(image, (background_width, background_height))
+                background = background[int(background_height / 2 - target_height / 2):
+                int(background_height / 2 + target_height / 2),
+                             int(background_width / 2 - target_width / 2):
+                             int(background_width / 2 + target_width / 2)]
+                background = cv2.GaussianBlur(background, (61, 61), 0)
+                target_image = background
+                target_image[0:height,
+                int(np.floor(target_width / 2 - width / 2)):
+                int(np.floor((target_width / 2 + width / 2)))] = image
+                image = target_image
+            text_ratio = int(height / 766)
+            shadow_size = 3 * text_ratio
+            text_size = 2 * text_ratio
+            if text_ratio == 0:
+                text_ratio = 1
+            if shadow_size == 0 or text_size == 0:
+                text_size = 2
+                shadow_size = 3
+            # image = cv2.putText(image, title, (50 + 2 * text_ratio, height - 120 - 28 * text_ratio),
+            #                     cv2.FONT_HERSHEY_TRIPLEX, 0.75 * text_ratio, [25, 25, 25], shadow_size)
+            # image = cv2.putText(image, title, (50, height - 120 - 30 * text_ratio), cv2.FONT_HERSHEY_TRIPLEX,
+            #                     0.75 * text_ratio, [255, 255, 255], text_size)
+            #
+            # image = cv2.putText(image, desc, (50 + 2 * text_ratio, height - 120 + 2 * text_ratio),
+            #                     cv2.FONT_HERSHEY_TRIPLEX, 0.75 * text_ratio, [25, 25, 25], shadow_size)
+            # image = cv2.putText(image, desc, (50, height - 120), cv2.FONT_HERSHEY_TRIPLEX, 0.75 * text_ratio,
+            #                     [255, 255, 255], text_size)
 
             cv2.startWindowThread()
             preview_ratio = 200 / target_height
-            cv2.imwrite(filename, target_image)
-            preview = cv2.resize(target_image, (int(target_width * preview_ratio), int(target_height * preview_ratio)))
+            cv2.imwrite(filename, image)
+            preview = cv2.resize(image, (int(target_width * preview_ratio), int(target_height * preview_ratio)))
             cv2.imshow(title, preview)
             cv2.waitKey(3000)
-
-    all_images = glob.glob('*.jpg')
-    to_remove = list(set(all_images) - new_images)
-    if len(items) != 0:
-        for file in to_remove:
-            os.remove(file)
-            print('{} removed'.format(file))
+    types = ['*.jpg', '*.jpeg', '*.png']
+    for type in types:
+        all_images = glob.glob(type)
+        to_remove = list(set(all_images) - new_images)
+        if len(items) != 0:
+           for file in to_remove:
+                os.remove(file)
+                print('{} removed'.format(file))
     time.sleep(5)
 
 
